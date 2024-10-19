@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "topaz"
+version = "0.1.0"
+description = ""
+authors = ["RoyceAroc <royceaden@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.14"
+pyqt5 = "^5.15.11"
+pyqtwebengine = "^5.15.7"
+pyinstaller = "^6.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
