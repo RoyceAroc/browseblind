@@ -14,7 +14,22 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, QTimer
 from utils.html_parser import get_new_html
-import json
+from uagents import Agent, Bureau, Context, Model
+import asyncio
+import threading
+from agents.main import create_agents
+from agents.schemas.message import Message
+
+global main_agent_ctx
+main_agent_ctx = None
+
+global agents_list
+agents_list = []
+
+global current_msg_id
+current_msg_id = "random_msg_id_generated_each_time"
+
+main_agent = Agent(name="main_agent", seed="sigmar recovery phrase")
 
 
 class BrowserTab(QWidget):
@@ -97,7 +112,7 @@ class Browser(QMainWindow):
         right_box = QWidget()
         right_box_layout = QVBoxLayout()
         self.input_field = QLineEdit()
-        self.input_field.returnPressed.connect(self.send_input_to_python)
+        self.input_field.returnPressed.connect(self.on_input_field_return_pressed)
         right_box_layout.addWidget(self.input_field)
 
         self.output_area = QTextEdit()
@@ -118,16 +133,52 @@ class Browser(QMainWindow):
         if self.tabs.count() > 1:
             self.tabs.removeTab(index)
 
-    def send_input_to_python(self):
+    async def send_input_to_python(self):
         input_text = self.input_field.text()
-        print("Input received:", input_text)
+        await main_agent_ctx.send(
+            agents_list[1]["address"],
+            Message(agents=agents_list, info={"question": input_text}),
+        )
         self.output_area.append("Input received: " + input_text)
         self.input_field.clear()
 
+    def on_input_field_return_pressed(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(self.send_input_to_python())
+        finally:
+            loop.close()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    browser = Browser()
-    browser.show()
-    browser.showMaximized()
-    sys.exit(app.exec_())
+    def reload_current_tab(self):
+        current_tab = self.tabs.currentWidget()
+        if current_tab:
+            current_tab.web_view.reload()
+
+
+app = QApplication(sys.argv)
+browser = Browser()
+browser.show()
+browser.showMaximized()
+
+
+@main_agent.on_event("startup")
+async def send_message(ctx: Context):
+    global main_agent_ctx
+    main_agent_ctx = ctx
+
+
+agents = create_agents(browser)
+bureau = Bureau()
+bureau.add(main_agent)
+
+agents_list.append({"name": "main_agent", "address": main_agent.address})
+
+for _ in agents:
+    print(_)
+    bureau.add(_)
+    agents_list.append({"name": _.name, "address": _.address})
+
+threading.Thread(target=bureau.run).start()
+
+sys.exit(app.exec_())
