@@ -2,8 +2,22 @@ from agents.models.browser import create_browser_agents
 from agents.schemas.message import Message
 from uagents import Agent, Context
 from llms.groq import run_groq
-
+import json
 import re
+
+
+def extract_and_parse_json(input_string):
+    json_data = re.search(r"\{.*\}", input_string)
+
+    if json_data:
+        json_string = json_data.group()
+        try:
+            parsed_json = json.loads(json_string)
+            return parsed_json
+        except json.JSONDecodeError as e:
+            return None
+    else:
+        return None
 
 
 def find_first_occurrence(s):
@@ -34,7 +48,7 @@ def create_agents(browser):
         User’s command: {msg.info["question"]}"""
             + """
         Respond with [<number>] for where number is which task from below and the json schema if you choose [1] or [2] 
-        [1] Use a search engine to search anything. Also respond with {"type": type, "query": query} which is json where type is one of [TEXT, IMAGE, VIDEOS] of what type of information the user is trying to search (choose one of the three). Query is what the user wants to search on the search engine.
+        [1] Use a search engine to search anything. Also respond with {"query": query} which is json where query is what the user wants to search on the search engine.
         [2] Visit a specific url. Also respond with {“url”: url} which starts with “https://”
         [3] Close the current tab 
         [4] Go backward on current tab
@@ -47,9 +61,13 @@ def create_agents(browser):
         agents_list = msg.agents
         response = run_groq(promptD)
         task_number = _find_first_occurrence(response)
+        update_obj = {}
         if task_number != 0:
             agent_to_use = ""
-            if task_number == 6:
+            if task_number == 1:
+                agent_to_use = "search_engine"
+                update_obj = extract_and_parse_json(response)
+            elif task_number == 6:
                 agent_to_use = "reload_page"
             found_agent = False
             for agent in agents_list:
@@ -57,6 +75,8 @@ def create_agents(browser):
                     break
                 if agent["name"] == agent_to_use:
                     found_agent = True
+                    print(update_obj)
+                    msg.info = {**msg.info, **update_obj}
                     await ctx.send(agent["address"], msg)
 
     @processing_agent.on_message(model=Message)

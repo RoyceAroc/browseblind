@@ -9,6 +9,5 @@ def init_reload_page_agent(browser):
     @reload_page.on_message(model=Message)
     async def handler(ctx: Context, sender: str, msg: Message):
         QTimer.singleShot(0, browser.reload_current_tab)
-        print("Reload requested via QTimer")
 
-    return [reload_page]
+    return reload_page

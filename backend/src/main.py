@@ -155,6 +155,14 @@ class Browser(QMainWindow):
         if current_tab:
             current_tab.web_view.reload()
 
+    def search_engine(self, query):
+        print(query)
+        current_tab = self.tabs.currentWidget()
+        if current_tab:
+            current_tab.web_view.setUrl(
+                QUrl("https://www.google.com/search?q=" + query)
+            )
+
 
 app = QApplication(sys.argv)
 browser = Browser()
