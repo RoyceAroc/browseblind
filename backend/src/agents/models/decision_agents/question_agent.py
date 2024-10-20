@@ -1,6 +1,7 @@
 from agents.schemas.message import Message
 from uagents import Agent, Context
 from llms.gemini import run_gemini
+from voice_model import play_sound
 import PIL.Image
 
 
@@ -17,6 +18,11 @@ def init_question_agent(browser):
         """
         image = PIL.Image.open("tab.png")
         response = run_gemini(image, promptA)
-        browser.output_area.append("\n" + "Answer: " + response + "\n")
+        browser.output_area.append(
+            f"""
+            <div style=" color: #3b8edb; font-weight: 800; padding: 3px; padding-left: 10px; font-size: 20px; margin-top: 5px;"> {response} </div>
+            """
+        )
+        play_sound(response)
 
     return question_agent

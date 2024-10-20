@@ -22,7 +22,7 @@ from agents.schemas.message import Message
 import threading
 import asyncio
 import json
-from llms.groq import run_groq
+from llms.groq import run_groq, run_groq_stt
 from llms.gemini import run_gemini
 from utils.html_parser import get_new_html
 import PIL.Image
@@ -30,6 +30,15 @@ import PIL.ImageDraw
 import re
 import string
 import random
+import sys
+import threading
+import pyaudio
+import wave
+from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtCore import pyqtSignal, QObject
+import time
+import keyboard
+from voice_model import play_sound
 
 global main_agent_ctx
 main_agent_ctx = None
@@ -57,7 +66,7 @@ class ConsoleLoggingPage(QWebEnginePage):
 class BrowserTab(QWidget):
     screenshot_completed = pyqtSignal()
 
-    def __init__(self, parent=None, url="https://browseblind.co"):
+    def __init__(self, parent=None, url="https://amazon.com"):
         super().__init__()
         self.parent_widget = parent
         self.layout = QVBoxLayout()
@@ -68,14 +77,14 @@ class BrowserTab(QWidget):
                 padding: 8px 12px;
                 border: 2px solid #506159;
                 border-radius: 5px;
-                background-color: #ffffff;
+                background-color: #a1928a;
                 font-size: 14px;
                 color: #333333;
                 margin: 5px;
             }
             QLineEdit:focus {
-                border-color: #dbb6a2;
-                background-color: #fafafa;
+                border-color: #a1928a;
+                background-color: white;
             }
             QLineEdit:hover {
                 border-color: #dbb6a2;
@@ -255,7 +264,12 @@ class BrowserTab(QWidget):
                 num = int(match.group(1))
                 await call_agent(self.fields[num - 1]["xpath"])
             else:
-                browser.output_area.append("\n" + "Couldn't complete operation" "\n")
+                browser.output_area.append(
+                    f"""
+                    <center><div style="color:red; font-weight: 800; padding: 3px; font-size: 15px;margin-top: 4px; text-align: center;"><i> We failed :( </i> </div></center>
+                    """
+                )
+                play_sound("Sorry, unable to help! Try again!")
 
         user_prompt = question
         prompt = f"""
@@ -382,7 +396,7 @@ class BrowserTab(QWidget):
             agents_list[2]["address"],
             Message(
                 agents=agents_list,
-                info={"msg_id": generate_random_string(10)},
+                info={"msg_id": current_msg_id},
             ),
         )
 
@@ -390,7 +404,12 @@ class BrowserTab(QWidget):
         def cb(result):
             self.v2_onload_script()
 
-        browser.output_area.append("\n" + "Clicked element of interest" "\n")
+        browser.output_area.append(
+            f"""
+            <center><div style="color: #b83e95; font-weight: 800; padding: 3px; font-size: 15px;margin-top: 4px; text-align: center;"><i> Clicked element of interest </i> </div></center>
+            """
+        )
+        play_sound("Clicked it for you")
 
         click_js = (
             """
@@ -442,7 +461,12 @@ class BrowserTab(QWidget):
         def cb(result):
             self.v2_onload_script()
 
-        browser.output_area.append("\n" + "Inputted into element of interest" "\n")
+        browser.output_area.append(
+            f"""
+            <center><div style="color: #b83e95; font-weight: 800; padding: 3px; font-size: 15px;margin-top: 4px; text-align: center;"><i> Entered data of interest </i> </div></center>
+            """
+        )
+        play_sound("Entered data for you")
 
         text_js = """
         (function() {
@@ -505,7 +529,7 @@ class Browser(QMainWindow):
         os.makedirs(self.downloads_dir, exist_ok=True)
 
         central_widget = QWidget()
-        central_widget.setStyleSheet("background-color: white; border-radius: 10px;")
+        central_widget.setStyleSheet("background-color: #babfbd;")
         self.setCentralWidget(central_widget)
         layout = QHBoxLayout(central_widget)
 
@@ -561,7 +585,7 @@ class Browser(QMainWindow):
         self.input_field = QLineEdit()
         self.input_field.setMinimumHeight(100)
         font = QFont()
-        font.setPointSize(16)
+        font.setPointSize(20)
         self.input_field.setFont(font)
         self.input_field.setAlignment(Qt.AlignTop)
         self.input_field.setStyleSheet(
@@ -592,7 +616,12 @@ class Browser(QMainWindow):
             agents_list[1]["address"],
             Message(agents=agents_list, info={"question": input_text}),
         )
-        self.output_area.append("Input received: " + input_text)
+
+        self.output_area.append(
+            f"""
+            <div style=" color: #506159; font-weight: 800; padding: 3px; padding-right: 10px; font-size: 20px;margin-top: 5px;"><b>User Asked: </b> {input_text} </div>
+            """
+        )
         self.input_field.clear()
 
     def on_input_field_return_pressed(self):
@@ -661,9 +690,12 @@ class Browser(QMainWindow):
             if data:
                 with open(pdf_path, "wb") as file:
                     file.write(data)
-                self.output_area.append(f"PDF saved to: {pdf_path}")
-            else:
-                self.output_area.append("Failed to save PDF")
+                self.output_area.append(
+                    f"""
+                        <center><div style="color: #b83e95; font-weight: 800; padding: 3px; font-size: 15px;margin-top: 4px; text-align: center;"><i> Saved PDF File </i> </div></center>
+                    """
+                )
+                play_sound("Saved the PDF for you")
 
         current_tab.web_view.page().printToPdf(callback)
 
@@ -672,6 +704,122 @@ app = QApplication(sys.argv)
 browser = Browser()
 browser.show()
 browser.showMaximized()
+
+
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 44100
+CHUNK = 4096
+RECORD_SECONDS = 10
+WAVE_OUTPUT_FILENAME = "output.wav"
+
+recording = True
+stopped = True
+
+
+class AudioRecorder(QObject):
+    recording_started = pyqtSignal()
+    recording_stopped = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.initialize_audio()
+        self.frames = []
+        self.is_recording = False
+
+    def initialize_audio(self):
+        self.audio_interface = pyaudio.PyAudio()
+        self.stream = None
+
+    def start_recording(self):
+        if not hasattr(self, "audio_interface") or self.audio_interface is None:
+            self.initialize_audio()
+
+        self.stream = self.audio_interface.open(
+            format=FORMAT,
+            channels=CHANNELS,
+            rate=RATE,
+            input=True,
+            frames_per_buffer=CHUNK,
+        )
+        self.is_recording = True
+        self.frames = []
+        self.recording_started.emit()
+
+        while self.is_recording:
+            data = self.stream.read(CHUNK)
+            self.frames.append(data)
+            if stopped:
+                break
+
+    def stop_recording(self):
+        if self.stream:
+            self.is_recording = False
+            self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
+
+        if self.audio_interface:
+            self.audio_interface.terminate()
+            self.audio_interface = None
+
+        wf = wave.open(WAVE_OUTPUT_FILENAME, "wb")
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(pyaudio.PyAudio().get_sample_size(FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(b"".join(self.frames))
+        wf.close()
+
+        self.recording_stopped.emit()
+
+        transcription_output = run_groq_stt(os.path.dirname(__file__) + "/output.wav")
+        browser.input_field.setText(transcription_output)
+        browser.input_field.returnPressed.emit()
+
+
+recorder = AudioRecorder()
+
+
+def start_audio_thread(recorder):
+    recorder.start_recording()
+
+
+def on_spacebar_press():
+    global recording, stopped
+    start_time = time.time()
+    while keyboard.is_pressed("space"):
+        if time.time() - start_time > 0.5:
+            recording = True
+            stopped = False
+    recording = False
+    time.sleep(1)
+    if not recording:
+        stopped = True
+
+
+last_status = True
+
+
+def keyboard_listener():
+    global stopped, last_status
+    keyboard.on_press_key(
+        "space", lambda _: threading.Thread(target=on_spacebar_press).start()
+    )
+
+    while True:
+        time.sleep(1)
+        if last_status != stopped:
+            central_widget = browser.centralWidget()
+            if stopped:
+                central_widget.setStyleSheet("background-color: #babfbd;")
+                recorder.stop_recording()
+            else:
+                central_widget.setStyleSheet("background-color: #05e0fc;")
+                threading.Thread(target=recorder.start_recording).start()
+            last_status = stopped
+
+
+threading.Thread(target=keyboard_listener).start()
 
 
 @main_agent.on_event("startup")

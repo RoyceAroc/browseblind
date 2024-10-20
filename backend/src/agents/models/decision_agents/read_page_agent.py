@@ -1,7 +1,7 @@
 from agents.schemas.message import Message
 from uagents import Agent, Context
-from utils.html_parser import get_new_html
 from llms.gemini import run_gemini
+from voice_model import play_sound
 import PIL.Image
 
 
@@ -17,6 +17,11 @@ def init_read_page_agent(browser):
         """
         image = PIL.Image.open("tab.png")
         response = run_gemini(image, promptA)
-        browser.output_area.append("Reading page: " + response)
+        browser.output_area.append(
+            f"""
+            <div style=" color: #3b8edb; font-weight: 800; padding: 3px; padding-left: 10px; font-size: 20px; margin-top: 5px;"> {response} </div>
+            """
+        )
+        play_sound(response)
 
     return read_page_agent

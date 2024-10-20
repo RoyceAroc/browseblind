@@ -1,6 +1,8 @@
+import random
 import google.generativeai as genai
+from configs import GEMINI_API_KEY
 
-genai.configure(api_key="AIzaSyAg216xspoLnCCe1Xn8vRsGw7xk-A76wd4")
+genai.configure(api_key=random.choice(GEMINI_API_KEY))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 

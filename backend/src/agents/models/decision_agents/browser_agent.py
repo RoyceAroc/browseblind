@@ -65,8 +65,11 @@ def init_browser_agent(browser):
                 if agent["name"] == agent_to_use:
                     found_agent = True
                     msg.info = {**msg.info, **update_obj}
+                    text = "Transferred to <b> " + agent_to_use + " </b> agent"
                     browser.output_area.append(
-                        "\n" + "Passing task to " + agent_to_use + " agent" "\n"
+                        f"""
+                        <center><div style="color: #b83e95; font-weight: 800; padding: 3px; font-size: 15px;margin-top: 4px; text-align: center;"><i> {text} </i> </div></center>
+                        """
                     )
                     await ctx.send(agent["address"], msg)
 

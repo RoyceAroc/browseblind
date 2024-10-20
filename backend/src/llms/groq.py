@@ -1,7 +1,10 @@
+import os
+import random
 from groq import Groq
+from configs import GROQ_API_KEY
 
 client = Groq(
-    api_key="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",
+    api_key=random.choice(GROQ_API_KEY),
 )
 
 
@@ -17,3 +20,16 @@ def run_groq(prompt):
     )
 
     return chat_completion.choices[0].message.content
+
+
+def run_groq_stt(filename):
+    with open(filename, "rb") as file:
+        transcription = client.audio.transcriptions.create(
+            file=(filename, file.read()),
+            model="whisper-large-v3-turbo",
+            prompt="User giving instructions",
+            response_format="json",
+            language="en",
+            temperature=0.0,
+        )
+    return transcription.text

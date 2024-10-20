@@ -2,6 +2,7 @@ from agents.schemas.message import Message
 from uagents import Agent, Context
 from llms.gemini import run_gemini
 import PIL.Image
+from voice_model import play_sound
 
 
 def init_onload_agent(browser):
@@ -14,7 +15,12 @@ def init_onload_agent(browser):
         """
         image = PIL.Image.open("tab.png")
         response = run_gemini(image, promptA)
-        browser.output_area.append("Summary of page: " + response)
+        browser.output_area.append(
+            f"""
+            <div style=" color: #3b8edb; font-weight: 800; padding: 3px; padding-left: 10px; font-size: 20px; margin-top: 5px;"> {response} </div>
+            """
+        )
+        play_sound(response)
         browser.tabs.currentWidget().summary = response
 
     return onload_agent

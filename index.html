@@ -1,13 +1,144 @@
 <!DOCTYPE html>
 <html>
     <head>
+       <title> Browse Blind | AI Browser</title>
        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Londrina+Sketch&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
          html,body {
             background-color: #506159;
+            color: #E0D1CA;
+            font-weight: 800;
+        }
+
+        #title {
+            color: white;
+            font-size: 5vw;
+            text-align: center;
+        }
+
+        #sub-title {
+            font-weight: 400;
+            font-style: normal;
+            color: white;
+            font-size: 2vw;
+            text-align: center;
+            margin-top: -4vw;
+            
+        }
+        
+        .font-main {
+            font-family: "Playwrite GB S", cursive;
+            font-optical-sizing: auto;
+            font-weight: 800;
+            font-style: normal;
+        }
+        a {
+            top: 20px;
+            left: 50px;
+            position: fixed;
+            font-size: 10vh;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+
+        a:hover {
+            color: rgb(196, 197, 183);
+            cursor: pointer;
+        }
+        
+        #imgA {
+            right: 5px;
+            top: 10px;
+            position: fixed;
+            height: 5vh;
+            cursor: pointer;
+            position: fixed;
+        }
+
+        #imgA:hover {
+            filter: brightness(0.8);
+            cursor: pointer;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .item {
+            flex: 0 0 60%;
+        }
+
+        .item:last-child {
+            flex: 0 0 40%;
+        }
+
+        @media (max-width: 1000px) {
+            .container {
+                flex-direction: column;
+                position: relative;
+                top: 200px;
+            }
+
+            a {
+                zoom: 50%;
+                top: 50px;
+                position: relative;
+            }
+
+            .item {
+                flex: 1;
+            }
+        }
+
+        #imgB {
+            width: 90%; 
+            padding: 5%; 
+            border-radius: 50px; 
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        #imgB:hover {
+            transform: scale(1.05);
+        }
+
+        .common-font {
+            font-family: "Ubuntu", sans-serif;
+            font-weight: 300;
+            font-style: normal;
+            font-size: 1.2vw;
+            color: white;
+            line-height: 2vw;
+            top: 10px;
+            right: 20px;
+            position: relative;
         }
         </style>
     </head>
     <body>
-        World's First AI Browser for Blind People.
+        <a href="/"> ∞ </a>
+        <a href="https://github.com/RoyceAroc/browseblind" target="_blank">
+            <img id="imgA" src="github_logo.png" alt="GitHub Logo"/>
+        </a>
+        <h1 id="title" class="font-main">BrowseBlind.co</h1>
+        <h3 id="sub-title">⠃⠗⠕⠺⠎⠑⠃⠇⠊⠝⠙</h3>
+        
+        <div class="container">
+            <div class="item">
+                <img id="imgB" src="home.png"/>
+            </div>
+            <div class="item common-font">
+                <ul>
+                    <li style="zoom: 150%"> World's First Interactive AI Browser </li>
+                    <li> For the first time, visually impaired can <b> interact </b> with the internet with more than a screenreader   </li>
+                    <li> Ask to click/fill anything, open/close tabs, ask questions, summarize, RAG, automate a process, etc  </li>
+                    <li> Optimized Agentic Framework costing < $1 for 8 hours of internet usage </li>
+                    <li> Powered by Text/STT Input and TTS Output  </li>
+                </ul>
+            </div>
+        </div>
     </body>
 </html>

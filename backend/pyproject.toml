@@ -6,10 +6,17 @@ authors = ["RoyceAroc <royceaden@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.14"
+python = ">=3.9,<3.13"
 pyqt5 = "^5.15.11"
 pyqtwebengine = "^5.15.7"
 pyinstaller = "^6.10.0"
+uagents = "^0.16.2"
+groq = "^0.11.0"
+google-generativeai = "^0.8.3"
+pillow = "^11.0.0"
+beautifulsoup4 = "^4.12.3"
+keyboard = "^0.13.5"
+pygame = "^2.6.1"
 
 
 [build-system]
