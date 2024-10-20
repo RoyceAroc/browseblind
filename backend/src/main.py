@@ -66,7 +66,7 @@ class ConsoleLoggingPage(QWebEnginePage):
 class BrowserTab(QWidget):
     screenshot_completed = pyqtSignal()
 
-    def __init__(self, parent=None, url="https://amazon.com"):
+    def __init__(self, parent=None, url="https://browseblind.co"):
         super().__init__()
         self.parent_widget = parent
         self.layout = QVBoxLayout()

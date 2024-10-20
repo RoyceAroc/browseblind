@@ -1,144 +1,146 @@
 <!DOCTYPE html>
-<html>
-    <head>
-       <title> Browse Blind | AI Browser</title>
-       <style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Blind | AI Browser</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Londrina+Sketch&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-         html,body {
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+
+        body {
             background-color: #506159;
             color: #E0D1CA;
-            font-weight: 800;
+            font-family: 'Ubuntu', sans-serif;
         }
 
-        #title {
-            color: white;
-            font-size: 5vw;
-            text-align: center;
-        }
-
-        #sub-title {
-            font-weight: 400;
-            font-style: normal;
-            color: white;
-            font-size: 2vw;
-            text-align: center;
-            margin-top: -4vw;
-            
-        }
-        
         .font-main {
             font-family: "Playwrite GB S", cursive;
             font-optical-sizing: auto;
             font-weight: 800;
             font-style: normal;
         }
-        a {
-            top: 20px;
-            left: 50px;
-            position: fixed;
-            font-size: 10vh;
-            cursor: pointer;
-            text-decoration: none;
-            color: white;
+
+        .navbar {
+            background-color: transparent !important;
+            padding: 1rem 2rem;
         }
 
-        a:hover {
-            color: rgb(196, 197, 183);
-            cursor: pointer;
-        }
-        
-        #imgA {
-            right: 5px;
-            top: 10px;
-            position: fixed;
-            height: 5vh;
-            cursor: pointer;
-            position: fixed;
+        .navbar-brand {
+            font-size: 2.5rem;
+            color: white !important;
         }
 
-        #imgA:hover {
+        .navbar-brand:hover {
+            color: rgb(196, 197, 183) !important;
+        }
+
+        .github-logo {
+            height: 2.5rem;
+            transition: filter 0.3s;
+        }
+
+        .github-logo:hover {
             filter: brightness(0.8);
-            cursor: pointer;
         }
 
-        .container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+        .hero-title {
+            color: white;
+            font-size: 4.5rem;
+            text-align: center;
         }
 
-        .item {
-            flex: 0 0 60%;
+        .hero-subtitle {
+            color: white;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-top: -1rem;
         }
 
-        .item:last-child {
-            flex: 0 0 40%;
+        .feature-image {
+            width: 100%;
+            border-radius: 25px;
+            transition: transform 0.3s;
         }
 
-        @media (max-width: 1000px) {
-            .container {
-                flex-direction: column;
-                position: relative;
-                top: 200px;
-            }
-
-            a {
-                zoom: 50%;
-                top: 50px;
-                position: relative;
-            }
-
-            .item {
-                flex: 1;
-            }
-        }
-
-        #imgB {
-            width: 90%; 
-            padding: 5%; 
-            border-radius: 50px; 
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        #imgB:hover {
+        .feature-image:hover {
             transform: scale(1.05);
         }
 
-        .common-font {
-            font-family: "Ubuntu", sans-serif;
-            font-weight: 300;
-            font-style: normal;
-            font-size: 1.2vw;
+        .feature-list {
+            font-size: 1.1rem;
+            line-height: 2;
             color: white;
-            line-height: 2vw;
-            top: 10px;
-            right: 20px;
-            position: relative;
         }
-        </style>
-    </head>
-    <body>
-        <a href="/"> ∞ </a>
-        <a href="https://github.com/RoyceAroc/browseblind" target="_blank">
-            <img id="imgA" src="github_logo.png" alt="GitHub Logo"/>
-        </a>
-        <h1 id="title" class="font-main">BrowseBlind.co</h1>
-        <h3 id="sub-title">⠃⠗⠕⠺⠎⠑⠃⠇⠊⠝⠙</h3>
-        
-        <div class="container">
-            <div class="item">
-                <img id="imgB" src="home.png"/>
+
+        .feature-list li:first-child {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .partner-logos img {
+            max-height: 40px;
+            margin: 1rem;
+            object-fit: contain;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            .feature-list {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">∞</a>
+            <a href="https://github.com/RoyceAroc/browseblind" target="_blank" class="ms-auto">
+                <img src="/github_logo.png" alt="GitHub Logo" class="github-logo">
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="hero-title font-main">BrowseBlind.co</h1>
+        <h3 class="hero-subtitle">⠃⠗⠕⠺⠎⠑⠃⠇⠊⠝⠙</h3>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7 mb-4">
+                <img src="home.png" alt="BrowseBlind Demo" class="feature-image shadow">
             </div>
-            <div class="item common-font">
-                <ul>
-                    <li style="zoom: 150%"> World's First Interactive AI Browser </li>
-                    <li> For the first time, visually impaired can <b> interact </b> with the internet with more than a screenreader   </li>
-                    <li> Ask to click/fill anything, open/close tabs, ask questions, summarize, RAG, automate a process, etc  </li>
-                    <li> Optimized Agentic Framework costing < $1 for 8 hours of internet usage </li>
-                    <li> Powered by Text/STT Input and TTS Output  </li>
+            
+            <div class="col-lg-5">
+                <ul class="feature-list list-unstyled">
+                    <li>World's First Interactive AI Browser</li>
+                    <li>For the first time, visually impaired can <b>interact</b> with the internet with more than a screenreader</li>
+                    <li>Ask to click/fill anything, open/close tabs, ask questions, summarize, RAG, automate a process, etc</li>
+                    <li>Optimized Agentic Framework costing < $1 for 8 hours of internet usage</li>
+                    <li>Powered by Text/STT Input and TTS Output</li>
                 </ul>
+
+                <div class="text-center mt-5">
+                    <h4 class="mb-4"><b>Powered by</b></h4>
+                    <div class="partner-logos d-flex flex-wrap justify-content-center align-items-center">
+                        <img src="google.webp" alt="Google Logo">
+                        <img src="fetch.png" alt="Fetch Logo">
+                        <img src="groq.png" alt="Groq Logo">
+                        <img src="deepgram.png" alt="Deepgram Logo">
+                    </div>
+                </div>
             </div>
         </div>
-    </body>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

@@ -10,7 +10,6 @@ headers = {
 
 
 def make_audio(data):
-    return None
     response = requests.post(url, headers=headers, data=data)
 
     with open("audio.mp3", "wb") as f:

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "topaz"
+name = "browseblind-package"
 version = "0.1.0"
 description = ""
 authors = ["RoyceAroc <royceaden@gmail.com>"]
@@ -22,3 +22,6 @@ pygame = "^2.6.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[virtualenvs]
+virtualenvs.in-project = "false"
