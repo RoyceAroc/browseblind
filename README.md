@@ -1,5 +1,6 @@
 # Browse Blind
 World's First AI Browser for the blind
+
 https://github.com/user-attachments/assets/8da2bcda-75d1-4843-b967-2b974fdcdbd8
 
 ## HomePage URL
