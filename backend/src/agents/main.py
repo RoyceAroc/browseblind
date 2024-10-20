@@ -1,108 +1,33 @@
 from agents.models.browser import create_browser_agents
-from agents.schemas.message import Message
-from uagents import Agent, Context
-from llms.groq import run_groq
-import json
-import re
-
-
-def extract_and_parse_json(input_string):
-    json_data = re.search(r"\{.*\}", input_string)
-
-    if json_data:
-        json_string = json_data.group()
-        try:
-            parsed_json = json.loads(json_string)
-            return parsed_json
-        except json.JSONDecodeError as e:
-            return None
-    else:
-        return None
-
-
-def find_first_occurrence(s):
-    match = re.search(r"[1234]", s)
-    if match:
-        return int(match.group())
-    return 0
-
-
-def _find_first_occurrence(s):
-    match = re.search(r"[12345678]", s)
-    if match:
-        return int(match.group())
-    return 0
+from agents.models.decision_agents.processing_agent import init_processing_agent
+from agents.models.decision_agents.onload_agent import init_onload_agent
+from agents.models.decision_agents.browser_agent import init_browser_agent
+from agents.models.decision_agents.read_page_agent import init_read_page_agent
+from agents.models.decision_agents.question_agent import init_question_agent
+from agents.models.decision_agents.inner_agent import init_inner_agent
+from agents.models.inner_agents.click.click_agent import init_click_agent
+from agents.models.inner_agents.input.text_agent import init_text_agent
 
 
 def create_agents(browser):
     browser_agents = create_browser_agents(browser)
+    click_agent = init_click_agent(browser)
+    text_agent = init_text_agent(browser)
 
-    processing_agent = Agent(name="processing_agent", seed="processing_agent")
-    browser_agent = Agent(name="browser_agent", seed="browser_agent")
+    processing_agent = init_processing_agent(browser)
+    onload_agent = init_onload_agent(browser)
+    browser_agent = init_browser_agent(browser)
+    read_page_agent = init_read_page_agent(browser)
+    question_agent = init_question_agent(browser)
+    inner_agent = init_inner_agent(browser)
 
-    @browser_agent.on_message(model=Message)
-    async def handler(ctx: Context, sender: str, msg: Message):
-        promptD = (
-            f"""
-        You are an AI agent. Your goal is to take a user’s command and choose the next step from the list below. 
-        User’s command: {msg.info["question"]}"""
-            + """
-        Respond with [<number>] for where number is which task from below and the json schema if you choose [1] or [2] 
-        [1] Use a search engine to search anything. Also respond with {"query": query} which is json where query is what the user wants to search on the search engine.
-        [2] Visit a specific url. Also respond with {“url”: url} which starts with “https://”
-        [3] Close the current tab 
-        [4] Go backward on current tab
-        [5] Go forward on current tab
-        [6] Reload the current tab
-        [7] Print the page
-        [8] Save the page
-        """
-        )
-        agents_list = msg.agents
-        response = run_groq(promptD)
-        task_number = _find_first_occurrence(response)
-        update_obj = {}
-        if task_number != 0:
-            agent_to_use = ""
-            if task_number == 1:
-                agent_to_use = "search_engine"
-                update_obj = extract_and_parse_json(response)
-            elif task_number == 6:
-                agent_to_use = "reload_page"
-            found_agent = False
-            for agent in agents_list:
-                if found_agent:
-                    break
-                if agent["name"] == agent_to_use:
-                    found_agent = True
-                    print(update_obj)
-                    msg.info = {**msg.info, **update_obj}
-                    await ctx.send(agent["address"], msg)
+    decision_agents = [
+        processing_agent,
+        onload_agent,
+        browser_agent,
+        read_page_agent,
+        question_agent,
+        inner_agent,
+    ]
 
-    @processing_agent.on_message(model=Message)
-    async def handler(ctx: Context, sender: str, msg: Message):
-        promptB = f"""
-        You are an AI agent. Your goal is to take a user’s command and choose the next step from the list below. 
-        User’s command: {msg.info["question"]}
-        Which of the following tasks does the user want to do? Respond with [<number>] for which task
-        [1] Ask a question about the page
-        [2] Proceed with in-page functionality (click an element on the page, enter information on the page - input field, upload file, etc)
-        [3] Proceed with browser functionality (using search engine to search anything, going to a url, opening/closing a tab, going back/forward, reload page, print/save the page)
-        [4] Summarize/read the page
-        """
-        agents_list = msg.agents
-        response = run_groq(promptB)
-        task_number = find_first_occurrence(response)
-        if task_number != 0:
-            agent_to_use = ""
-            if task_number == 3:
-                agent_to_use = "browser_agent"
-            found_agent = False
-            for agent in agents_list:
-                if found_agent:
-                    break
-                if agent["name"] == agent_to_use:
-                    found_agent = True
-                    await ctx.send(agent["address"], msg)
-
-    return [processing_agent, browser_agent] + browser_agents
+    return decision_agents + browser_agents + [click_agent, text_agent]
